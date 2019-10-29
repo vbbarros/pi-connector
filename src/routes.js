@@ -6,7 +6,8 @@ router.get('/', (req, res)=>{
 })
 
 router.post('/search', (req, res)=>{
-  if(req.body.validation == "ihm123!@#"){
+  const validation = req.body.validation || ''
+  if(validation == "ihm123!@#"){
     return searchController.searchData(req, res)
   }else {
     res.status(401).send("Você não tem autorização para esta requisição")
