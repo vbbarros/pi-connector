@@ -83,6 +83,14 @@ const validation = function(data){
             const biggerDate = moment(data.startDateTime).isSameOrAfter(moment(data.endDateTime))
             if(biggerDate){
                 reject("startDateTime deve ser menor do que endDateTime")
+            } else{
+                const diff = moment(data.endDateTime, "YYYY-MM-DD HH:mm:ss").diff(moment(data.startDateTime, "YYYY-MM-DD HH:mm:ss"))
+                const diffDuration = moment.duration(diff)
+                const durationInterval = moment(data.interval, "HH:mm:ss")
+
+                if(diffDuration.minutes() < durationInterval.minutes()){
+                    reject("A duração do intervalo de amostragem é maior que o intervalo a ser buscado")
+                }
             }
         }
         
