@@ -6,6 +6,9 @@ const searchService = require('./SearchService')
 const searchData = (req, res) => {
 
   const webid = req.body.webid || '';
+  if(webid == ''){
+    return res.status(400).send("Especifique qual WebId quer buscar")
+  }
   const startDateTime = req.body.startDateTime || ''
   const endDateTime = req.body.endDateTime || ''
   const interval = req.body.interval || ''
