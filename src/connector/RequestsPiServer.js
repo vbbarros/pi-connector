@@ -17,8 +17,6 @@ axios.defaults.auth = {
   password: config.pass
 }
 
-//const searchAttributes = webid => axios.get(`/elements/${webid}/attributes?selectedFields=Items.WebId;Items.Name`)
-
 const searchAttributes = function(webid){
   return axios.get(`/elements/${webid}/attributes?selectedFields=Items.WebId;Items.Name`)
 } 
