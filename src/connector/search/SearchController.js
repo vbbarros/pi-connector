@@ -34,9 +34,8 @@ const searchData = (req, res) => {
         if (err.response == undefined) {
           res.status(400).send("Não foi possível conectar ao PI SERVER")
         } else {
-          res.status(400).send(`Error: ${err.response.data.Errors}`)
+          res.status(400).send(`Erro: ${err.response.data.Errors}`)
         }
-        //res.send(401).json(`messagem`)
       })
   }
 
@@ -66,7 +65,7 @@ const searchData = (req, res) => {
       .then(resp => {
         res.json(resp)
       }).catch(err => {
-        res.status(400).send(`Erro ao buscar elementos: ${err.message}`)
+        res.status(400).send(`Erro ao buscar elementos: ${err}`)
       })
   }
 

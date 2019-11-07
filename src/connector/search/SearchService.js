@@ -59,7 +59,14 @@ const iteracaoAtributtes = function(attributes, formatacao){
         })
         Q.all(promises).then(function(data){
             resolve(data)
-        }).catch();
+        }).catch(err =>{
+            if(err.response.status == 502){
+                return reject(`${err.response.data.Errors}`)
+            } else {
+                return reject(`${err.message}`)
+            }
+            
+        });
     })
 }
 
