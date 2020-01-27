@@ -25,7 +25,6 @@ router.get('/momentTest',(req,res)=>{
   console.log(selectedDate)
   
   var myDate = new Date();
-  document.write(myDate.getTimezoneOffset());
   return res.json(
     {
       msg: selectedDate,
