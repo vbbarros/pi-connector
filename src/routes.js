@@ -23,13 +23,18 @@ router.get('/momentTest',(req,res)=>{
   const date = moment().tz(tz).format("YYYY-MM-DD HH:mm:ssZ")
   const selectedDate = (moment(date).tz(tz)).utc().format("YYYY-MM-DD HH:mm:ssZ")
   console.log(selectedDate)
+  
+  var myDate = new Date();
+  document.write(myDate.getTimezoneOffset());
   return res.json(
     {
       msg: selectedDate,
       zoned: date,
-      tz: tz
+      tz: tz,
+      offset: myDate.getTimezoneOffset()
     }
   )
+
 })
 
 module.exports = router
