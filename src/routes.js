@@ -26,7 +26,8 @@ router.get('/momentTest',(req,res)=>{
   return res.json(
     {
       msg: selectedDate,
-      zoned: date
+      zoned: date,
+      tz: tz
     }
   )
 })
