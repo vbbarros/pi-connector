@@ -10,12 +10,12 @@ const formatData = (startDateTime, endDateTime, interval) => {
 }
   
 const filterAttributes = (attributesRequired, enumAttributes, existingAttributes) => {
-    let rejectionAttributes = "Atributo(s) "
     if(!attributesRequired.length){
         throw new Error("Especifique quais atributos deseja buscar")
     }
     nonexistingAttributes = attributesRequired.filter(attributeRequired => !enumAttributes.includes(attributeRequired))
     if(nonexistingAttributes.length){
+        let rejectionAttributes = "Atributo(s) "
         nonexistingAttributes.forEach(function(attribute){
             rejectionAttributes = `${rejectionAttributes} ${attribute} `;
         })
@@ -67,14 +67,12 @@ const iteracaoAtributtes = (attributes, formatacao) => {
 }
 
 const verifyTypeOfSearch = (isSubattribute) => {
-
     if(isSubattribute.toLowerCase() != "true" && isSubattribute.toLowerCase() != "false"){
         throw new Error("Especifique se a busca é por atributo ou subatributo")
     }
-    let enumAttributes = isSubattribute == "true" ? config.subattributes : config.attributes
-    let path = isSubattribute == "true" ? 'attributes' : 'elements'
+    const enumAttributes = isSubattribute == "true" ? config.subattributes : config.attributes
+    const path = isSubattribute == "true" ? 'attributes' : 'elements'
     return {enumAttributes, path}
-    
 }
 
 module.exports = {
