@@ -12,6 +12,7 @@ app.use(express.urlencoded({ extended: false }))
 app.set('port', port)
 
 app.use('/', routes)
+app.use('/searchAttributes', routes)
 
 const server = http.createServer(app)
 
@@ -43,6 +44,5 @@ const onListening = () => {
 server.listen(port)
 server.on('error', onError)
 server.on('listening', onListening)
-
 
 module.exports = app

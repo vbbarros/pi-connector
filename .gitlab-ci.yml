@@ -1,0 +1,180 @@
+image: docker:19.03.1
+
+variables:
+  # When using dind service we need to instruct docker, to talk with the
+  # daemon started inside of the service. The daemon is available with
+  # a network connection instead of the default /var/run/docker.sock socket.
+  #
+  # The 'docker' hostname is the alias of the service container as described at
+  # https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#accessing-the-services
+  #
+  # Note that if you're using the Kubernetes executor, the variable should be set to
+  # tcp://localhost:2375/ because of how the Kubernetes executor connects services
+  # to the job container
+  DOCKER_HOST: tcp://localhost:2375/
+  # For non-Kubernetes executors, we use tcp://docker:2375/
+  # When using dind, it's wise to use the overlayfs driver for improved performance.
+  DOCKER_DRIVER: overlay2
+  # This will instruct Docker not to start over TLS.
+  DOCKER_TLS_CERTDIR: ""
+  KUBERNETES_NAMESPACE: loop
+  CHART_NAME: pi-connector
+  CHART_VERSION: 1.0.0
+  QA_HOST: pi-connector.qa.ihm.com.br
+  PROD_HOST: pi-connector.apps.ihm.com.br
+
+services:
+  - docker:19.03.1-dind
+
+stages:
+  - build
+  - release-image
+  - package-chart
+  - deploy
+  - verify
+  - logs
+
+build:
+  stage: build
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:current --file $CI_PROJECT_DIR/Dockerfile $CI_PROJECT_DIR
+    - docker save $CI_REGISTRY_IMAGE:current > $CI_PROJECT_DIR/$CI_PROJECT_NAME:current.tar
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - $CI_PROJECT_DIR/$CI_PROJECT_NAME:current.tar
+  only:
+    - develop
+    - master
+  
+release:
+  stage: release-image
+  dependencies:
+    - build 
+  before_script:
+    - docker load -i $CI_PROJECT_DIR/$CI_PROJECT_NAME:current.tar
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+  script:
+    - docker tag $CI_REGISTRY_IMAGE:current $CI_REGISTRY_IMAGE:${CHART_VERSION}
+    - docker push $CI_REGISTRY_IMAGE:${CHART_VERSION}
+
+    #Sobreescreve última versão
+    - docker tag $CI_REGISTRY_IMAGE:current $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:latest
+  only:
+    - develop
+    - master
+
+package-chart:
+  stage: package-chart
+  dependencies: []
+  image: registry.gitlab.com/ihm-public/k8s-deployer:latest
+  before_script:
+    - helm repo add ihmcharts s3://br-com-ihm-charts/charts
+  script:
+    - helm template ./kubernetes/$CHART_NAME
+    - helm package ./kubernetes/$CHART_NAME
+    - helm s3 push --force ${CHART_NAME}-${CHART_VERSION}.tgz ihmcharts
+  only:
+    - develop
+    - master
+
+deploy-qa:
+  stage: deploy
+  dependencies: []
+  image: registry.gitlab.com/ihm-public/k8s-deployer:latest
+  before_script:
+    - export KUBECONFIG=$K8S_CONFIG
+    - kubectl config get-contexts
+    - kubectl config use-context qa
+    - helm repo add ihmcharts s3://br-com-ihm-charts/charts
+  script:
+    - helm repo update
+    - helm search repo $CHART_NAME
+    - helm upgrade $CHART_NAME ihmcharts/$CHART_NAME --version $CHART_VERSION  --install --force --namespace $KUBERNETES_NAMESPACE --set ingress.hosts={$QA_HOST} -f $CI_PROJECT_DIR/kubernetes/pi-connector/values.yaml
+  environment:
+    name: qa
+    url: http://$QA_HOST
+  only:
+    - develop    
+
+verify-qa:
+  stage: verify
+  dependencies: []
+  needs:
+    - deploy-qa
+  retry: 2
+  script:
+    - sleep 20
+    - wget --server-response http://$QA_HOST/healthz
+  only:
+    - develop
+
+log-qa:
+  stage: logs
+  image: registry.gitlab.com/ihm-public/k8s-deployer:latest
+  needs:
+    - verify-qa
+  before_script:
+    - export KUBECONFIG=$K8S_CONFIG
+    - kubectl config use-context qa
+  script:
+    - kubectl -n $KUBERNETES_NAMESPACE get pods
+    - kubectl -n $KUBERNETES_NAMESPACE logs --tail=2000 -l app=$CHART_NAME --all-containers=true > pod.log
+  artifacts:
+    expire_in: 1 month
+    paths:
+      - pi-connector.log
+  when: on_failure
+  only:
+    - develop
+
+deploy-prod:
+  stage: deploy
+  image: registry.gitlab.com/ihm-public/k8s-deployer:latest
+  before_script:
+    - export KUBECONFIG=$K8S_CONFIG
+    - kubectl config use-context prod
+    - helm repo add ihmcharts s3://br-com-ihm-charts/charts
+  script:
+    - helm repo update
+    - helm search repo $CHART_NAME
+    - helm upgrade $CHART_NAME ihmcharts/$CHART_NAME --version $CHART_VERSION  --install --force --namespace $KUBERNETES_NAMESPACE --set ingress.hosts={$PROD_HOST} -f $CI_PROJECT_DIR/kubernetes/pi-connector/values-prod.yaml
+  environment:
+    name: prod
+    url: http://$PROD_HOST
+  when: manual
+  allow_failure: false
+  only:
+    - master
+
+verify-prod:
+  stage: verify
+  needs:
+    - deploy-prod
+  retry: 2
+  script:
+    - sleep 20
+    - wget --server-response http://$PROD_HOST/healthz
+  only:
+    - master
+
+log-prod:
+  stage: logs
+  image: registry.gitlab.com/ihm-public/k8s-deployer:latest
+  needs:
+    - verify-prod
+  before_script:
+    - export KUBECONFIG=$K8S_CONFIG
+    - kubectl config use-context prod
+  script:
+    - kubectl -n $KUBERNETES_NAMESPACE get pods
+    - kubectl -n $KUBERNETES_NAMESPACE logs --tail=2000 -l app=$CHART_NAME --all-containers=true > pod.log
+  artifacts:
+    expire_in: 1 month
+    paths:
+      - pi-connector.log
+  when: on_failure
+  only:
+    - master

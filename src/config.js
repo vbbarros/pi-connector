@@ -1,7 +1,9 @@
+require('dotenv').config();
+
 module.exports = {
-    url: 'https://54.204.194.152/piwebapi',
-    user: 'Administrator',
-    pass: ';gG4ynXm(rpqGDaaTHIjgQTUz(Ht2sPw',
-    elements: ['Ativa', 'Bit Status', 'Derivativo', 'Grupo OPC', 'Integral', 'Location 1', 'Location 3', 
-    'Location 4', 'Modo', 'MV', 'Point Source', 'Proporcional', 'PV', 'SP', 'Tipo']
+    url: process.env.PI_URL,
+    user:  process.env.PI_USER,
+    pass:  process.env.PI_PASSWORD,
+    attributes:  process.env.PI_ATTRIBUTES.split(","),
+    subattributes:  process.env.PI_SUB_ATTRIBUTES.split(",")
 }
