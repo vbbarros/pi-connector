@@ -28,7 +28,9 @@ Requirements :
 * Clone repository : https://github.com/vbbarros/pi-connector
 * Install all dependencies : yarn install
 * Create a .env file like the .env.example with the correct enviroments variables, based on your PI structure
+* Run unit tests: yarn test
 * Run application : yarn dev
+
 
 Endpoitns :
 

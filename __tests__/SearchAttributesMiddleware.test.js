@@ -47,7 +47,7 @@ describe('Testing validateSecretKey() function', () => {
             await SearchAttributesMiddleware.validateSecretKey(body, bodyPatternValues)
         }catch(err){
             expect(err).toBeInstanceOf(Error)
-            expect(err).toHaveProperty('message', 'Devem ser passados 7 parâmetros. Cheque especificação da requisição')
+            expect(err).toHaveProperty('message', 'Devem ser passados 6 parâmetros. Cheque especificação da requisição')
         }
     })
     test('Passing eight params in the body and bodyPatternValues should return throw a Error', async() =>{
@@ -74,7 +74,7 @@ describe('Testing validateSecretKey() function', () => {
             await SearchAttributesMiddleware.validateSecretKey(body, bodyPatternValues)
         }catch(err){
             expect(err).toBeInstanceOf(Error)
-            expect(err).toHaveProperty('message', 'Devem ser passados 7 parâmetros. Cheque especificação da requisição')
+            expect(err).toHaveProperty('message', 'Devem ser passados 6 parâmetros. Cheque especificação da requisição')
         }
     })
 })
