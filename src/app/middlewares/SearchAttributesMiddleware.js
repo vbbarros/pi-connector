@@ -24,6 +24,7 @@ const bodyPatternWebIds = [
     "isSubattribute"
 ]
 
+//Validates the JSON of request
 const validateJson = async(req, res, next) => {
 
     const bodyPattern = req.path == '/values'? bodyPatternValues : bodyPatternWebIds
@@ -45,6 +46,7 @@ const validateJson = async(req, res, next) => {
     })
 }
 
+//Check the number of params of request
 const validateSecretKey = async(data, boddyPattern) => {
     var count = Object.keys(data).length
     if(count != boddyPattern.length){
@@ -53,6 +55,7 @@ const validateSecretKey = async(data, boddyPattern) => {
     
 }
 
+//Resolve a chaining promise searching for one attribute requested that doens't exist on PI
 const isPresent = (bodyItem, bodyFromRequisiton) => {
     return new Promise(function(resolve, reject) {
 
@@ -63,6 +66,7 @@ const isPresent = (bodyItem, bodyFromRequisiton) => {
     })
 }
 
+//Validaiton for the dates and interval
 const validateDatesAndInterval = (req, res, next) => {
     const startDateTime = req.body.startDateTime || ''
     const endDateTime = req.body.endDateTime || ''
@@ -79,6 +83,7 @@ const validateDatesAndInterval = (req, res, next) => {
     return next()
 }
 
+//Validation of Time pattern
 const validateDateTimeFormat = (date, message = "dateTime") => {
     const validationDate = moment(date, "YYYY-MM-DD HH:mm:ss", true).isValid()
     if (!validationDate){
@@ -86,6 +91,7 @@ const validateDateTimeFormat = (date, message = "dateTime") => {
     }
 }
 
+//Validation of dates pattern
 const validateHourFormat = (hour, message = "hour") => {
     const validationHour = moment(hour, "HH:mm:ss", true).isValid()
     if(!validationHour){
@@ -93,6 +99,7 @@ const validateHourFormat = (hour, message = "hour") => {
     }
 }
 
+//Validates if the dates have a valid period in the respective sampling interval 
 const validatePeriods = (startDateTime, endDateTime, interval) => {
     const biggerDate = moment(startDateTime).isSameOrAfter(moment(endDateTime))
     if(biggerDate){

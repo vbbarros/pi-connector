@@ -1,6 +1,7 @@
 const requests = require('../utils/RequestsPiServer')
 const SearchAttributesService = require('../services/SearchAttributesService')
 
+//Request to get hitorical data from attributes
 const searchAttributesValues = async(req, res) => {
   
   const _getAttributesValue = async(_startDateTime, _endDateTime, _interval, _items) => {
@@ -43,6 +44,7 @@ const searchAttributesValues = async(req, res) => {
 
 }
 
+//Request to get information from attributes of an element
 const searchAttributesWebids = async(req, res) => {
   try{
     var typeOfSearch = SearchAttributesService.verifyTypeOfSearch(req.body.isSubattribute)

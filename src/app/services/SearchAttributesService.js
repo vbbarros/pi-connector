@@ -2,6 +2,7 @@ const Q = require('q')
 const requests = require('../utils/RequestsPiServer')
 const config = require('../../config')
 
+//Formats dates in the required pattern
 const formatData = (startDateTime, endDateTime, interval) => {
     const [startDateFormatted, startTimeFormatted] = startDateTime.split(' ').map(encodeURIComponent)
     const [endDateFormatted, endTimeFormatted] = endDateTime.split(' ').map(encodeURIComponent)
@@ -9,6 +10,7 @@ const formatData = (startDateTime, endDateTime, interval) => {
     return {startDateFormatted, startTimeFormatted, endDateFormatted, endTimeFormatted, intervalFormatted}
 }
   
+//Filter attributes to return in the same order as in the request
 const filterAttributes = (attributesRequired, enumAttributes, existingAttributes) => {
     if(!attributesRequired.length){
         throw new Error("Especifique quais atributos deseja buscar")
@@ -33,6 +35,7 @@ const filterAttributes = (attributesRequired, enumAttributes, existingAttributes
     return attributesFiltered
 }
 
+//Resolve a chaining promise with the historical data of each attribute
 const iteracaoAtributtes = (attributes, formatacao) => {
     let promises = []
     return new Promise(function(resolve, reject) {
@@ -55,6 +58,7 @@ const iteracaoAtributtes = (attributes, formatacao) => {
     })
 }
 
+//returns the respective enumAttributes according to the isSubattribute param
 const verifyTypeOfSearch = (isSubattribute) => {
     if(isSubattribute.toLowerCase() != "true" && isSubattribute.toLowerCase() != "false"){
         throw new Error("Especifique se a busca é por atributo ou subatributo")
