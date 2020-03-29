@@ -54,18 +54,18 @@ const searchAttributesWebids = async(req, res) => {
   try{
     attr = await requests.searchAttributes(req.body.webid, typeOfSearch.path)
   }catch(err){
-    res.status(400).send(err.message)
+    if (err.response == undefined) {
+      return res.status(400).send("Não foi possível conectar ao PI SERVER")
+    } else {
+      return res.status(400).send(`Erro: ${err.response.data.Errors}`)
+    }
   }
 
   try{
     const atributtesFiltered = SearchAttributesService.filterAttributes(req.body.attributes, typeOfSearch.enumAttributes, attr.data.Items)
     return res.json(atributtesFiltered)
   }catch(err){
-    if (err.response == undefined) {
-      return res.status(400).send("Não foi possível conectar ao PI SERVER")
-    } else {
-      return res.status(400).send(`Erro: ${err.response.data.Errors}`)
-    }
+    res.status(400).send(err.message)
   }
 }
 

@@ -21,27 +21,16 @@ const filterAttributes = (attributesRequired, enumAttributes, existingAttributes
         })
         throw new Error(`${rejectionAttributes} não existem no PI SERVER`)
     }
-    attributesToSearch = existingAttributes.filter(existingAttribute => attributesRequired.includes(existingAttribute.Name))
-    let _listaAgrupada = [];
-    let _listaOdernada = [];
-    attributesRequired.map(function (_item, i) {
-        _listaAgrupada.push([]);
-    });
 
-    //iterações para ordenar as requisições de acordo com o array de attributos a serem buscados
-    attributesToSearch.map(function (_item, i) {
-        let _arrayPos = attributesRequired.indexOf(_item.Name);
+    const attributesToSearch = existingAttributes.filter(existingAttribute => attributesRequired.includes(existingAttribute.Name))
+    
+    const attributesFiltered = attributesRequired.reduce((acc, value) => {
+        const attr = attributesToSearch.filter(attr => attr.Name === value)
+        acc.push(...attr)
+        return acc
+    }, [])
 
-        if (_arrayPos >= 0)
-            _listaAgrupada[_arrayPos].push(_item);
-
-    });
-
-    _listaAgrupada.map(function (_item, i) {
-        _listaOdernada.push.apply(_listaOdernada, _item)
-    })
-        
-    return _listaOdernada;
+    return attributesFiltered
 }
 
 const iteracaoAtributtes = (attributes, formatacao) => {
