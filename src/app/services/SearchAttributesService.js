@@ -15,10 +15,10 @@ const filterAttributes = (attributesRequired, enumAttributes, existingAttributes
     if(!attributesRequired.length){
         throw new Error("Especifique quais atributos deseja buscar")
     }
-    nonexistingAttributes = attributesRequired.filter(attributeRequired => !enumAttributes.includes(attributeRequired))
+    const nonexistingAttributes = attributesRequired.filter(attributeRequired => !enumAttributes.includes(attributeRequired))
     if(nonexistingAttributes.length){
         let rejectionAttributes = "Atributo(s) "
-        nonexistingAttributes.forEach(function(attribute){
+        nonexistingAttributes.forEach((attribute) => {
             rejectionAttributes = `${rejectionAttributes} ${attribute} `;
         })
         throw new Error(`${rejectionAttributes} não existem no PI SERVER`)
@@ -38,14 +38,14 @@ const filterAttributes = (attributesRequired, enumAttributes, existingAttributes
 //Resolve a chaining promise with the historical data of each attribute
 const iteracaoAtributtes = (attributes, formatacao) => {
     let promises = []
-    return new Promise(function(resolve, reject) {
-        attributes.forEach(function (attribute){
+    return new Promise((resolve, reject) => {
+        attributes.forEach((attribute) => {
             let promise = requests.searchDataAttributes(attribute.WebId, formatacao).then(function(response){
                 return response.data.Items
             })
             promises.push(promise);
         })
-        Q.all(promises).then(function(data){
+        Q.all(promises).then((data) => {
             resolve(data)
         }).catch(err =>{
             if(err.response.status == 502){
@@ -53,7 +53,6 @@ const iteracaoAtributtes = (attributes, formatacao) => {
             } else {
                 return reject(`${err.message}`)
             }
-            
         });
     })
 }

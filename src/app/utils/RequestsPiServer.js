@@ -12,12 +12,12 @@ axios.defaults.auth = {
 }
 
 //Infromation of Attributes
-const searchAttributes = function(webid, path){
+const searchAttributes = (webid, path) => {
   return axios.get(`/${path}/${webid}/attributes?selectedFields=Items.WebId;Items.Name`)
 } 
 
 //Historial data of Attributes
-const searchDataAttributes = function(webid, formatacao){
+const searchDataAttributes = (webid, formatacao) => {
   return axios.get(`/streams/${webid}/interpolated?endTime=${formatacao.endDateFormatted}%20${formatacao.endTimeFormatted}&includeFilteredValues=false&interval=${formatacao.intervalFormatted}&startTime=${formatacao.startDateFormatted}%20${formatacao.startTimeFormatted}&timezone=GMT Standard Time&selectedFields=Items.Value;Items.Timestamp`)
 }
 

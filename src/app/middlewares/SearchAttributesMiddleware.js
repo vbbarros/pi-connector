@@ -39,7 +39,7 @@ const validateJson = async(req, res, next) => {
         let promise = isPresent(val, req.body)
         promises.push(promise)
     })
-    await Promise.all(promises).then(function(){
+    await Promise.all(promises).then(() => {
         return next()
     }).catch(err => {
         return res.status(400).send(err)
@@ -57,7 +57,7 @@ const validateSecretKey = async(data, boddyPattern) => {
 
 //Resolve a chaining promise searching for one attribute requested that doens't exist on PI
 const isPresent = (bodyItem, bodyFromRequisiton) => {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
 
         if(!(Object.keys(bodyFromRequisiton)).includes(bodyItem)){
             reject(messagesPattern[bodyItem])
